@@ -1,0 +1,486 @@
+\documentclass{beamer}
+\usetheme{UNIUD}
+%\usecolortheme{default}
+\usepackage[a-1b]{pdfx}
+\usepackage[T1]{fontenc} 
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+
+\title{Script Lua per il controllo remoto di droni}
+\subtitle{Tesi sperimentale}
+\author{Marco Sgobino}
+\institute{Università degli Studi di Udine}
+\date{}
+
+%\AtBeginSection[]
+%{
+    %\begin{frame}
+        %\frametitle{Script Lua per il controllo remoto di droni}
+        %\tableofcontents[currentsection]
+    %\end{frame}
+%}
+
+
+\begin{document}
+\begin{frame}
+        \titlepage
+\end{frame}
+
+\section{Introduzione}
+
+\begin{frame}
+        \frametitle{Premessa}
+        In questo elaborato di tesi sperimentale sono stati effettuati:
+        \begin{enumerate}
+                \item lo studio della documentazione e comprensione del funzionamento di OpenTX
+                \item il progetto e sviluppo di script in Lua eseguiti su firmware OpenTX
+                \item la sperimentazione tramite simulatore e successivamente con radiocomando reale
+        \end{enumerate}
+\end{frame}
+
+\begin{frame}
+        \frametitle{Introduzione a OpenTX}
+        OpenTX è un firmware per radiocomandi open source, rilasciato in licenza \emph{GNU GPLv2}.
+        
+
+        Esso è gestito e sviluppato dalla comunità di sviluppatori e piloti, in collaborazione con le aziende interessate.
+        
+
+        Il modello a sorgente libero consente ad esperti, sviluppatori e piloti di godere di una maggiore sicurezza, stabilità e controllo sul software, nonché allo studente di esaminarne liberamente il funzionamento ed apprenderne i meccanismi interni.
+
+\end{frame}
+
+\begin{frame}
+        \frametitle{Modelli in esame}
+        Scritto in C++, supporta oltre 20 radiocomandi.
+        I modelli utilizzati sono:
+
+        \begin{columns}
+                \column{0.5\textwidth}
+                \begin{itemize}
+                        \item il \emph{Taranis FrSky QX7S}
+                \end{itemize}
+
+                \column{0.5\textwidth}
+                \begin{figure}
+                        \centering
+                        \includegraphics<1>[width=.8\textwidth]{./qx7s.png}
+                \end{figure}
+
+        \end{columns}
+\end{frame}
+
+\begin{frame}
+        \frametitle{Modelli in esame}
+        Scritto in C++, supporta oltre 20 radiocomandi.
+        I modelli utilizzati sono:
+
+        \begin{columns}
+                \column{0.5\textwidth}
+                \begin{itemize}
+                        \item il \emph{RadioMaster TX16S}
+                \end{itemize}
+
+                \column{0.5\textwidth}
+                \begin{figure}
+                        \centering
+                        \includegraphics<1>[width=.8\textwidth]{./tx16s.png}
+                \end{figure}
+        \end{columns}
+\end{frame}
+
+
+\section{Materiali e Metodi}
+
+\begin{frame}
+        \frametitle{Funzionamento base del firmware}
+        Il firmware OpenTX è composto da due distinti applicativi:
+        
+        \begin{itemize}
+                \item il \emph{System Firmware}, responsabile della gestione degli input, della lettura delle impostazioni, della produzione di immagini su schermo
+        
+                \item il \emph{Transmitter Firmware}, si occupa della trasmissione radio
+        
+        \end{itemize}
+        
+        La memorizzazione avviene attraverso una memoria a stato solido.
+
+        Lo schermo consente all'utente la configurazione delle impostazioni, la lettura della telemetria (RSSI, GPS, batteria residua del radiocomando).
+        
+        Ogni telecomando è in grado di riprodurre annunci vocali.
+
+\end{frame}
+
+\begin{frame}
+        \frametitle{Mixer}
+        
+        I mixer consentono di elaborare uno o più input mediante coefficienti, offset, o funzioni più complesse, e direzionarlo in uno o più canali d'uscita (fino a 32).
+        
+
+        Esistono più tipi di mixer:
+        
+        \begin{description}
+                \item[peso ed offset] l'output è ottenuto mediante la formula $output = sorgente \cdot peso + offset$
+        
+                \item[diff] riduce l'effetto di un input in una direzione e l'amplifica nella direzione opposta
+        
+                \item[function] applica una funzione matematica o disuguaglianza
+        
+                \item[expo] applica un andamento esponenziale
+        
+                \item[curve] applica una curva personalizzata (fino a 17 punti selezionabili)
+        \end{description}
+\end{frame}
+
+\begin{frame}
+        \frametitle{Supporto OpenTX per Lua}
+
+        OpenTX supporta gli script in Lua dalla versione 2.0. 
+        
+
+        Il firmware consente l'esecuzione di script con regole e struttura precisa.
+        
+
+        Esistono due categorie principali di script:
+        
+        \begin{itemize}
+                \item gli script monouso
+        
+                \item gli script persistenti
+        
+        \end{itemize}
+
+        I primi sono caricati all'avvio del firmware o del modello in memoria, i secondi vengono evocati una singola volta ed interrompono gli altri script.
+\end{frame}
+
+\begin{frame}
+        \frametitle{Script persistenti}
+        Sono caricati all'avvio, ed eseguiti fino allo spegnimento del radiocomando o alla selezione di un nuovo modello.
+        
+
+        È possibile eseguirne fino ad un massimo di 7 contemporaneamente.
+        
+
+        Vi sono più tipi di script persistenti:
+        
+        \begin{description}
+                \item[script di modello] svolgono funzioni analoghe ai mixes, con possibilità arbitrarie di elaborazione
+        
+                \item[script di funzione] del tutto simili agli script di modello, attivabili con un pulsante o finché una determinata condizione risulta vera
+        
+                \item[script di telemetria] presentano dati e immagini al pilota, e possono riprodurre annunci vocali
+        
+                \item[widget] hanno funzionalità paragonabili agli script di telemetria. Sono supportati dai modelli più avanzati, è possibile personalizzarne dimensione e colori da radiocomando
+        \end{description}
+
+\end{frame}
+
+\begin{frame}
+        \frametitle{Script monouso}
+        Gli script monouso sono evocati dal menù del radiocomando, o da una specifica funzione.\newline
+        
+        Interrompono tutti gli altri script, la loro esecuzione è ripristinata al termine dello script monouso.\newline
+        
+        Sono l'ideale per realizzare programmi come ad esempio i wizard di installazione.\newline
+\end{frame}
+
+
+\begin{frame}
+        \frametitle{Script di telemetria}
+        Gli script di telemetria seguono una precisa struttura, e vi sono 3 tipi di funzioni principali:
+        
+        \begin{description}
+                \item[funzione \texttt{init()}] viene eseguita all'avvio dello script (opzionale)
+                        
+                \item[funzione \texttt{run()}] viene eseguita periodicamente, quando la schermata di telemetria è visibile
+                        
+                \item[funzione \texttt{background()}] viene eseguita periodicamente a prescindere dalla schermata mostrata
+                        
+        \end{description}
+        Uno statement di \texttt{return} a fine script collega le definizioni delle funzioni, che possono avere un nome diverso, con le funzioni principali richieste da OpenTX.
+\end{frame}
+
+\begin{frame}
+        \frametitle{Widget}
+        I widget sono l'evoluzione degli script di telemetria.\newline 
+        
+        Nella prima parte:
+        
+        \begin{description}
+                \item[stringa \texttt{nome}] il nome del widget, massimo 10 caratteri
+                        
+                \item[table \texttt{options}] contiene le opzioni configurabili dal pilota tramite interfaccia grafica
+                        
+                \item[funzione \texttt{create()}] viene chiamata all'avvio del widget
+                        
+                \item[funzione \texttt{update()}] viene chiamata quando si verifica una modifica alle opzioni
+        \end{description}
+\end{frame}
+
+\begin{frame}
+        \frametitle{Widget}
+        Nella tabella delle opzioni possono essere presenti i seguenti elementi:
+        
+        \begin{description}
+                \item[\texttt{VALUE}] valore numerico costante
+                        
+                \item[\texttt{SOURCE}] sorgente di input da cui prelevare il valore
+                        
+                \item[\texttt{BOOL}] variabile booleana costante
+                        
+                \item[\texttt{COLOR}] colore espresso in formato RGB565
+                        
+        \end{description}
+        Essi sono modificabili dall'utente da radiocomando, mediante le opzioni del widget.\newline
+\end{frame}
+
+\begin{frame}
+        \frametitle{Widget}
+        Le funzioni principali dei widget sono:
+        
+        \begin{description}
+                \item[funzione \texttt{refresh()}] eseguita periodicamente quando lo schermo è visibile
+                        
+                \item[funzione \texttt{background()}] eseguita periodicamente quando lo schermo non è visibile
+                        
+        \end{description}
+        Anche in questo caso uno statement di \texttt{return} collega le definizioni delle funzioni con le funzioni principali previste da OpenTX.
+\end{frame}
+
+\begin{frame}
+        \frametitle{Funzioni \texttt{lcd}}
+        Si occupano della stampa su schermo:
+        
+        \begin{itemize}
+                \item \texttt{lcd.clear()} permette di azzerare la schermata, obbligatorio negli script di telemetria
+                        
+                \item la stampa avviene con \texttt{lcd.drawText()} oppure \texttt{lcd.drawTimer()}
+                        
+                \item \texttt{lcd.setColor()} permette di impostare un colore personalizzato al testo
+                        
+        \end{itemize}
+        Lo schermo del \emph{RadioMaster} supporta una modalità a colori con risoluzione $480 \times 272$, mentre lo schermo del \emph{Taranis} supporta soltanto la modalità bianco e nero con risoluzione $128 \times 64$.\newline
+\end{frame}
+
+\begin{frame}
+        \frametitle{OpenTX Companion}
+        \emph{OpenTX Companion} è un software messo a disposizione dagli sviluppatori di OpenTX per la configurazione del radiocomando interamente da computer desktop.\newline
+        Esso consente:
+        
+        \begin{itemize}
+                \item il caricamento del firmware nel radiocomando e la sincronizzazione della scheda SD
+                        
+                \item la configurazione del radiocomando
+                        
+                \item la creazione e configurazione dei modelli
+                        
+                \item l'esecuzione del backup delle impostazioni
+        \end{itemize}
+\end{frame}
+
+\begin{frame}
+        \frametitle{OpenTX Simulator}
+        \emph{OpenTX Simulator} è il secondo software a disposizione degli sviluppatori. Esso è in grado di condurre accurate simulazioni del radiocomando con un alto grado di fedeltà. \newline
+        
+        Sono supportati oltre $20$ radiocomandi differenti.
+\end{frame}
+
+\begin{frame}
+        \frametitle{OpenTX Simulator}
+        Aspetto della simulazione del radiocomando \emph{RadioMaster TX16S}
+        \begin{figure}
+                \centering
+                \includegraphics<1>[width=.8\textwidth]{../Pictures/opentx-sim-first.png}
+        \end{figure}
+\end{frame}
+
+\begin{frame}
+        \frametitle{OpenTX Simulator}
+        Aspetto della simulazione del radiocomando \emph{Taranis QX7S}
+        \begin{figure}
+                \centering
+                \includegraphics<1>[width=.8\textwidth]{../Pictures/opentx-sim-qx7s.png}
+        \end{figure}
+\end{frame}
+
+\section{Risultati e Discussione}
+
+\begin{frame}
+        \frametitle{Risultati e Discussione}
+        In questa tesi sperimentale sono stati realizzati due script Lua:
+        
+        \begin{itemize}
+                \item lo script per il cronometro vocale, \texttt{TmrCnt}
+        
+                \item lo script per il conto alla rovescia vocale, \texttt{CntDwn}
+        \end{itemize}
+        
+        Ciascuno script è stato realizzato in due versioni, una per radiocomando in esame.
+
+\end{frame}
+
+\begin{frame}
+        \frametitle{\texttt{TmrCnt}}
+        Lo script \texttt{TmrCnt} realizza un timer su schermo, con lo scopo di tener conto del tempo trascorso dall'inizio della fase di volo.\newline
+        
+        Oltre che visualizzare il tempo nella schermata del radiocomando, le informazioni del timer sono riprodotte da annunci vocali.\newline
+        
+        Questo approccio consente al pilota di mantenere il contatto visivo con il drone, senza la necessità di dover visualizzare l'informazione sul radiocomando.
+        
+        Lo script fa uso di un timer interno al radiocomando per il conteggio del tempo trascorso.
+\end{frame}
+
+\begin{frame}
+        \frametitle{\texttt{TmrCnt}}
+        Le opzioni dello script presentate al pilota sono:
+        
+        \begin{description}
+                \item[Timer] il timer scelto, con possibili valori $1$, $2$ e $3$
+        
+                \item[Alert] il numero di secondi che intercorrono fra ciascun annuncio vocale
+        
+                \item[Color] il colore del testo (per i radiocomandi che supportano i widget)
+        
+                \item[Invers] flag booleano per l'inversione dei colori (negli schermi in bianco e nero)
+        \end{description}
+        
+        Le due funzioni principali, \texttt{refresh()} e \texttt{background()} vedono i calcoli suddivisi in ulteriori funzioni, \texttt{playTimer()} e la funzione responsabile della stampa della telemetria, \texttt{drawTelemetry()}.\newline
+\end{frame}
+
+\begin{frame}
+        \frametitle{\texttt{playTimer()}}
+        La funzione fa uso di un flag booleano, inizialmente al valore \texttt{false}, per il controllo della riproduzione dell'annuncio vocale.\newline
+        
+        A seguito della riproduzione dell'annuncio, ulteriori riproduzioni indesiderate sono evitate dal flag al valore \texttt{true}.
+        
+        Quando si verificano le condizioni idonee, il flag è riportato al valore \texttt{false}.
+        
+        La lettura del numero avviene mediante la funzione interna \texttt{playDuration()}.
+\end{frame}
+
+
+
+\begin{frame}
+        \frametitle{\texttt{drawTelemetry()}}
+        La stampa è realizzata con le seguenti modalità:
+        
+        \begin{itemize}
+                \item tenendo conto delle possibili dimensioni dei widget nella versione per telecomandi che supportano i widget
+                        
+                \item sfruttando in ogni caso l'intero spazio disponibile, anche per gli schermi con caratteristiche inferiori e non in grado di supportare i widget
+                        
+                \item per una migliore ottimizzazione, la funzione di stampa è chiamata solo ed esclusivamente tramite la funzione \texttt{refresh()}, attiva nel caso sia visibile la schermata di telemetria
+        \end{itemize}
+\end{frame}
+
+\begin{frame}
+        \frametitle{Aspetto di \texttt{TmrCnt}}
+        Lo script si presenta infine con il seguente aspetto (versione per il \emph{TX16S}):
+        \begin{figure}
+                \centering
+                \includegraphics<1>[width=.8\textwidth]{../Pictures/tmrcnt-tx16s.png}
+        \end{figure}
+\end{frame}
+
+\begin{frame}
+        \frametitle{Aspetto di \texttt{TmrCnt}}
+        Lo script si presenta infine con il seguente aspetto (versione per il \emph{QX7S}):
+        \begin{figure}
+                \centering
+                \includegraphics<1>[width=.8\textwidth]{../Pictures/tmrcnt-qx7s.png}
+        \end{figure}
+\end{frame}
+
+\begin{frame}
+        \frametitle{\texttt{CntDwn}}
+        Lo script \texttt{CntDwn} realizza un conto alla rovescia a partire da un valore impostabile dall'utente (valore predefinito $180$ secondi), con precisi annunci vocali.\newline
+        
+        Gli annunci vocali vengono riprodotti ogni minuto, e negli ultimi $30$, $15$ secondi, ed infine da $10$ secondi fino allo scadere del tempo residuo. Gli annunci vocali consentono al pilota di non interrompere il contatto visivo con il drone.\newline
+        
+        La struttura dello script è del tutto simile alla precedente, eccezion fatta per la funzione di riproduzione degli annunci, maggiormente complessa.
+\end{frame}
+
+\begin{frame}
+        \frametitle{\texttt{playTime()}}
+        La funzione dedicata alla riproduzione degli annunci è stata progettata per riprodurre annunci a determinati secondi, e fa ancora uso di un flag booleano di controllo.\newline
+        
+        La principale differenza è che a causa della maggiore complessità il ripristino del flag avviene in una funzione esterna, \texttt{resetPlayedFlag()}.\newline
+        
+        Tale funzione si occupa di valutare i casi specifici per cui il flag di controllo debba essere ripristinato al valore \texttt{false}.\newline
+        
+        Il ripristino infatti avviene sempre al secondo successivo all'annuncio vocale, così da evitare possibili ripetizioni indesiderate.
+\end{frame}
+
+\begin{frame}
+        \frametitle{Aspetto di \texttt{CntDwn}}
+        Lo script si presenta infine con il seguente aspetto (versione per il \emph{TX16S}):
+        \begin{figure}
+                \centering
+                \includegraphics<1>[width=.8\textwidth]{../Pictures/cntdwn-tx16s.png}
+        \end{figure}
+\end{frame}
+
+\begin{frame}
+        \frametitle{Aspetto di \texttt{CntDwn}}
+        Lo script si presenta infine con il seguente aspetto (versione per il \emph{QX7S}):
+        \begin{figure}
+                \centering
+                \includegraphics<1>[width=.8\textwidth]{../Pictures/cntdwn-qx7s.png}
+        \end{figure}
+\end{frame}
+
+\section{Conclusioni}
+
+\begin{frame}
+        \frametitle{Conclusioni}
+        Lo studio della documentazione, la scrittura degli script e l'analisi del loro comportamento tramite il simulatore è potuta per intero avvenire con mezzi esclusivamente software.\newline
+        
+        Ogni script è stato ugualmente testato su radiocomandi reali, ottenendo il medesimo comportamento riscontrato durante la fase di test tramite simulatore.\newline
+        
+        In definitiva, è stato possibile creare due script di telemetria, in grado di supportare radiocomandi dalle caratteristiche assai differenti e con numerose possibilità di espansione futura.
+\end{frame}
+
+\section{Sviluppi Futuri}
+\begin{frame}
+        \frametitle{Sviluppi Futuri}
+        Alcuni spunti per la realizzazione di script futuri potrebbero essere:
+        
+        \begin{itemize}
+                \item ottenimento ed elaborazione di ulteriori sorgenti, fra cui
+                        
+                        \begin{description}
+                                        \item[RSSI] intensità del segnale in ricezione
+                                                
+                                        \item[GPS] coordinate GPS ed indicazione dell'ultima posizione nota in caso di segnale assente
+                                                
+                                        \item[RxBt] tensione della batteria del modello
+                                                
+                        \end{description}
+                \item produzione di avvisi critici (scarso RSSI, raggiungimento di una determinata area o coordinata GPS, tensione di batteria del modello minore di una certa soglia)
+                        
+                \item controllo diretto del drone, sempre prestando attenzione alla sicurezza e ad eventualità criticità in tale ambito
+        \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+        \begin{columns}
+                \begin{column}{0.75\textwidth}
+                        \begin{center}
+                                \font\endfont = cmss10 at 7.00mm
+                                \color{uniudBrown}
+                                \endfont 
+                                GRAZIE PER L'ATTENZIONE
+                                \baselineskip 20.0mm
+                        \end{center}    
+
+                \end{column}
+        \end{columns}
+\end{frame}
+
+
+%\AtBeginSection
+
+
+
+\end{document}

@@ -1,0 +1,38 @@
+\babel@toc {italian}{}
+\babel@toc {italian}{}
+\contentsline {chapter}{\numberline {1}PREMESSA}{2}{chapter.1}%
+\contentsline {chapter}{\numberline {2}INTRODUZIONE}{3}{chapter.2}%
+\contentsline {chapter}{\numberline {3}MATERIALI E METODI}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Utilizzo e scopo di OpenTX}{5}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Gestione degli input ed elaborazione degli output mediante i mixer}{6}{subsection.3.1.1}%
+\contentsline {subsubsection}{Le sorgenti}{7}{subsection.3.1.1}%
+\contentsline {subsubsection}{I Mixer}{7}{subsection.3.1.1}%
+\contentsline {subsubsection}{Tipologie di mixer}{7}{Item.3}%
+\contentsline {section}{\numberline {3.2}Supporto OpenTX per gli script Lua}{9}{section.3.2}%
+\contentsline {subsubsection}{Script persistenti}{9}{section.3.2}%
+\contentsline {subsubsection}{One-time script}{10}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Struttura di uno script di modello}{10}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Struttura di uno script di telemetria}{13}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Struttura di uno script Widget}{15}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Interazione con il display del radiocomando}{17}{subsection.3.2.4}%
+\contentsline {subsubsection}{Display LCD del Taranis QX7S}{18}{subsection.3.2.4}%
+\contentsline {subsubsection}{Display LCD del RadioMaster TX16S}{18}{figure.3.2}%
+\contentsline {subsubsection}{Gestione dello schermo mediante le funzioni \texttt {lcd}}{19}{figure.3.3}%
+\contentsline {section}{\numberline {3.3}OpenTX Companion}{20}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Specifiche e compilazione del sorgente}{21}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Utilizzo e funzionalità}{21}{subsection.3.3.2}%
+\contentsline {chapter}{\numberline {4}RISULTATI E DISCUSSIONE}{27}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Lo script di cronometro vocale}{27}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Widget \texttt {TmrCnt} su RadioMaster TX16S}{27}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Schermata di telemetria \texttt {TmrCnt} su Taranis QX7S}{31}{subsection.4.1.2}%
+\contentsline {section}{\numberline {4.2}Lo script di conto alla rovescia vocale}{34}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Widget \texttt {CntDwn} su RadioMaster TX16S}{35}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Schermata di telemetria \texttt {CntDwn} su Taranis QX7S}{39}{subsection.4.2.2}%
+\contentsline {chapter}{\numberline {5}CONCLUSIONI}{42}{chapter.5}%
+\contentsline {chapter}{\numberline {6}SVILUPPI FUTURI}{43}{chapter.6}%
+\contentsline {chapter}{Bibliografia}{44}{chapter.6}%
+\contentsline {chapter}{Appendice}{46}{chapter*.2}%
+\contentsline {section}{Script \texttt {TmrCnt} per RadioMaster TX16S}{46}{chapter*.3}%
+\contentsline {section}{Script \texttt {TmrCnt} per Taranis QX7S}{50}{lstnumber.-40.83}%
+\contentsline {section}{Script \texttt {CntDwn} per RadioMaster TX16S}{52}{lstnumber.-41.62}%
+\contentsline {section}{Script \texttt {CntDwn} per Taranis QX7S}{57}{lstnumber.-42.150}%

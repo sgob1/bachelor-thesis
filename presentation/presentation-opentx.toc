@@ -1,0 +1,7 @@
+\babel@toc {italian}{}
+\babel@toc {italian}{}
+\beamer@sectionintoc {1}{Introduzione}{2}{0}{1}
+\beamer@sectionintoc {2}{Materiali e Metodi}{6}{0}{2}
+\beamer@sectionintoc {3}{Risultati e Discussione}{20}{0}{3}
+\beamer@sectionintoc {4}{Conclusioni}{31}{0}{4}
+\beamer@sectionintoc {5}{Sviluppi Futuri}{32}{0}{5}
